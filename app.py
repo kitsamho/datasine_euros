@@ -113,7 +113,7 @@ df_staff.rename(columns={'country':'datasiner'},inplace=True)
 
 
 st.header("Datasine Euros Sweepstake Dashboard")
-st.image(asset_path+'dslogo.png',width=400)
+# st.image(asset_path+'dslogo.png',width=400)
 st.sidebar.image(asset_path+'euros.png', width=100)
 
 
