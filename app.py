@@ -43,9 +43,9 @@ def get_table(group_soup_tuple):
 
 def plot_editing(fig, title, x_title, y_title, height=900, width=700):
 
-    fig.update_layout(title=title,
-                      paper_bgcolor='rgba(0,0,0,0)',
-                      plot_bgcolor='rgba(0,0,0,0)',)
+    fig.update_layout(title=title)
+                      # paper_bgcolor='rgba(0,0,0,0)',
+                      # plot_bgcolor='rgba(0,0,0,0)',)
     fig.update_layout(margin=dict(l=25, r=25, b=50, t=150, pad=2))
     fig.update_layout(width=width, height=height)
     fig.update_layout(yaxis=dict(title=y_title, titlefont_size=12, tickfont_size=12, tickmode='linear', tick0=1,
