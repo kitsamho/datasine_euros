@@ -1,0 +1,9 @@
+pandas==1.2.3
+tqdm==4.56.0
+numpy==1.19.2
+beautifulsoup4==4.9.3
+plotly==4.14.3
+scikit_learn==0.24.2
+streamlit==0.82.0
+tensorflow==2.5.0
+tensorflow_hub==0.12.0
