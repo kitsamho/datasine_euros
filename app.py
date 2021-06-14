@@ -40,6 +40,29 @@ def get_table(group_soup_tuple):
     table['group'] = group_soup_tuple[1]
     return table
 
+@st.cache
+def recent_results_sidebar():
+    results_soup = get_html_soup('https://www.skysports.com/euro-2020-results')
+
+    days = results_soup.find_all('div', {'class': 'fixres__item'})
+
+    left_team_class = 'matches__item-col matches__participant matches__participant--side1'
+    score_class = 'matches__item-col matches__status'
+    right_team_class = 'matches__item-col matches__participant matches__participant--side2'
+    res = []
+    for day in days:
+        left_team = day.find('span', {'class': left_team_class}).find('span', {'class': 'swap-text__target'}).text
+        right_team = day.find('span', {'class': right_team_class}).find('span', {'class': 'swap-text__target'}).text
+        score_data = day.find('span', {'class': score_class}).find_all('span', {'class': 'matches__teamscores-side'})
+        left_score = score_data[0].text.split()[0]
+        right_score = score_data[1].text.split()[0]
+        result = [left_team, left_score, right_score, right_team]
+        res.append(result)
+
+    df_results = pd.DataFrame(res)
+
+    return df_results
+
 
 def plot_editing(fig, title, x_title, y_title, height=900, width=700):
 
@@ -112,39 +135,61 @@ df_staff = df_staff.explode('country')
 df_staff.rename(columns={'country':'datasiner'},inplace=True)
 
 
-st.header("Datasine Euros Sweepstake Dashboard")
+# st.header("Datasine Euros Sweepstake Dashboard")
 # st.image(asset_path+'dslogo.png',width=400)
 st.sidebar.image(asset_path+'euros.png', width=100)
 
+def teams(col_1, col_2):
+    if col_1 == col_2:
+        return col_1
+    else:
+        return str(col_1)+','+str(col_2)
 
-analysis_view = st.sidebar.selectbox("Choose team or staff view",
+
+df_allocation = pd.DataFrame(datasine_dic).T
+df_allocation['team'] = df_allocation.apply(lambda x: teams(x[0], x[1]), axis=1)
+df_allocation = df_allocation.drop(columns=[0, 1])
+
+st.sidebar.subheader('Team Allocation')
+st.sidebar.dataframe(df_allocation)
+
+st.sidebar.subheader('Data Source')
+st.sidebar.write('https://www.skysports.com/')
+st.sidebar.subheader('Last update')
+st.sidebar.write(pd.datetime.now())
+
+
+c1, c2 = st.beta_columns((1.5, 3))
+
+
+df_recent_results = recent_results_sidebar()
+
+
+c1.header('Most Recent Results')
+c1.dataframe(df_recent_results)
+
+
+
+
+c2.header('Analysis')
+analysis_view = c2.selectbox("Choose team or staff view",
                                        ['Team','Staff'])
+option = c2.selectbox('Choose analysis..',('Points','Results'))
 
-
-st.sidebar.write('Source: https://www.skysports.com/euro-2020-table')
-st.sidebar.write("Last updated at:", pd.datetime.now())
-
-
-option = st.selectbox('Choose analysis..',('Points','Results','Goals For', 'Goals Against'))
-
-option_dic = {'Points':'points',
-              'Goals For': 'goals_for',
-              'Goals Against': 'goals_against',
-
-
-              }
+option_dic = {'Points':'points'}
 if analysis_view == 'Team':
     df = df_team
+
     if option == 'Results':
         fig = px.bar(df, y="country", x=["won", "drawn", "lost"], color_discrete_map={
             'won': 'green',
             'drawn': 'grey',
             'lost': 'red'})
 
-        st.plotly_chart(plot_editing(fig, title=option, x_title=option, y_title='Team'))
+        c2.plotly_chart(plot_editing(fig, title=option, x_title=option, y_title='Team'))
     else:
         fig = px.bar(df, y='country', x=option_dic[option], color='group', orientation='h', height=900, width=700)
-        st.plotly_chart(plot_editing(fig, title=option, x_title=option, y_title='Team'))
+        c2.plotly_chart(plot_editing(fig, title=option, x_title=option, y_title='Team'))
 
 else:
     df = df_staff
@@ -153,11 +198,11 @@ else:
             'won': 'green',
             'drawn': 'grey',
             'lost': 'red'})
-        st.plotly_chart(plot_editing(fig, title=option, x_title=option, y_title='Datasiner'))
+        c2.plotly_chart(plot_editing(fig, title=option, x_title=option, y_title='Datasiner'))
     else:
         fig = px.bar(df, y='datasiner', x=option_dic[option], orientation='h', height=900, width=700)
         fig.update_layout(yaxis={'categoryorder': 'total ascending'})
-        st.plotly_chart(plot_editing(fig,title=option, x_title=option, y_title='Datasiner'))
+        c2.plotly_chart(plot_editing(fig,title=option, x_title=option, y_title='Datasiner'))
 
 
 
