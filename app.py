@@ -40,7 +40,7 @@ def get_table(group_soup_tuple):
     table['group'] = group_soup_tuple[1]
     return table
 
-@st.cache
+# @st.cache
 def recent_results_sidebar():
     results_soup = get_html_soup('https://www.skysports.com/euro-2020-results')
 
@@ -78,7 +78,7 @@ def plot_editing(fig, title, x_title, y_title, height=900, width=700):
     return fig
 
 
-@st.cache
+# @st.cache
 def update_app():
     top_page_soup = get_html_soup('https://www.skysports.com/euro-2020-table')
     group_soup_a = top_page_soup.find_all('div', {"class": 'standing-table standing-table--full block'})[0]
