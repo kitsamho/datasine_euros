@@ -63,6 +63,30 @@ def recent_results_sidebar():
 
     return df_results
 
+def next_games():
+    results_soup = get_html_soup('https://www.skysports.com/euro-2020-fixtures')
+
+    days = results_soup.find_all('div', {'class': 'fixres__item'})
+
+    left_team_class = 'matches__item-col matches__participant matches__participant--side1'
+    score_class = 'matches__item-col matches__status'
+    right_team_class = 'matches__item-col matches__participant matches__participant--side2'
+    res = []
+    for day in days:
+        left_team = day.find('span', {'class': left_team_class}).find('span', {'class': 'swap-text__target'}).text
+        right_team = day.find('span', {'class': right_team_class}).find('span', {'class': 'swap-text__target'}).text
+        score_data = day.find('span', {'class': score_class}).find_all('span', {'class': 'matches__teamscores-side'})
+        left_score = score_data[0].text.split()[0]
+        right_score = score_data[1].text.split()[0]
+        result = [left_team, left_score, right_score, right_team]
+        res.append(result)
+
+    df_nextgame = pd.DataFrame(res)
+
+    return df_nextgame
+
+st.dataframe(next_games())
+
 
 def plot_editing(fig, title, x_title, y_title, height=900, width=700):
 
