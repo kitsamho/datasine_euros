@@ -185,10 +185,13 @@ if analysis_view == 'Team':
             'won': 'green',
             'drawn': 'grey',
             'lost': 'red'})
+        fig.update_xaxes(range=[0, 6])
 
         c2.plotly_chart(plot_editing(fig, title=option, x_title=option, y_title='Team'))
+
     else:
         fig = px.bar(df, y='country', x=option_dic[option], color='group', orientation='h', height=900, width=700)
+        fig.update_xaxes(range=[0, 9])
         c2.plotly_chart(plot_editing(fig, title=option, x_title=option, y_title='Team'))
 
 else:
@@ -198,9 +201,11 @@ else:
             'won': 'green',
             'drawn': 'grey',
             'lost': 'red'})
+        fig.update_xaxes(range=[0, 6])
         c2.plotly_chart(plot_editing(fig, title=option, x_title=option, y_title='Datasiner'))
     else:
         fig = px.bar(df, y='datasiner', x=option_dic[option], orientation='h', height=900, width=700)
+        fig.update_xaxes(range=[0, 18])
         fig.update_layout(yaxis={'categoryorder': 'total ascending'})
         c2.plotly_chart(plot_editing(fig,title=option, x_title=option, y_title='Datasiner'))
 
