@@ -41,7 +41,7 @@ def get_table(group_soup_tuple):
     return table
 
 # @st.cache
-def recent_results_sidebar():
+def recent_results():
     results_soup = get_html_soup('https://www.skysports.com/euro-2020-results')
 
     days = results_soup.find_all('div', {'class': 'fixres__item'})
@@ -64,7 +64,7 @@ def recent_results_sidebar():
     return df_results
 
 
-def plot_editing(fig, title, x_title, y_title, height=900, width=700):
+def plot_editing(fig, title, x_title, y_title, height=650, width=700):
 
     fig.update_layout(title=title)
                       # paper_bgcolor='rgba(0,0,0,0)',
@@ -134,9 +134,6 @@ df_staff.country = df_staff.country.apply(lambda x: datasine_dic[x])
 df_staff = df_staff.explode('country')
 df_staff.rename(columns={'country':'datasiner'},inplace=True)
 
-
-# st.header("Datasine Euros Sweepstake Dashboard")
-# st.image(asset_path+'dslogo.png',width=400)
 st.sidebar.image(asset_path+'euros.png', width=100)
 
 def teams(col_1, col_2):
@@ -162,11 +159,26 @@ st.sidebar.write(pd.datetime.now())
 c1, c2 = st.beta_columns((1.5, 3))
 
 
-df_recent_results = recent_results_sidebar()
+
 
 
 c1.header('Most Recent Results')
+df_recent_results = recent_results()
 c1.dataframe(df_recent_results)
+
+df_recent_results_staff = df_recent_results.copy()
+
+def team_replace(x):
+    try:
+        return datasine_dic[x]
+    except:
+        return
+
+df_recent_results_staff[0] = df_recent_results_staff[0].apply(team_replace)
+df_recent_results_staff[3] = df_recent_results_staff[3].apply(team_replace)
+
+c1.header('Most Recent Results (Staff)')
+c1.dataframe(df_recent_results_staff)
 
 
 
