@@ -82,6 +82,7 @@ def plot_editing(fig, title, x_title, y_title, height=650, width=700):
 
 if broken:
     st.header("This app was brought to you by Scotland")
+    st.markdown("![Alt Text](https://www.heraldscotland.com/resources/images/11517131.jpg?display=1&htype=96&type=responsive-gallery)")
 else:
     # @st.cache
     def update_app():
