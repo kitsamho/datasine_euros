@@ -81,7 +81,7 @@ def plot_editing(fig, title, x_title, y_title, height=650, width=700):
 
 
 if broken:
-    st.header("This app was brought you by Scotland")
+    st.header("This app was brought to you by Scotland")
 else:
     # @st.cache
     def update_app():
