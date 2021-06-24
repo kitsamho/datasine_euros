@@ -6,8 +6,9 @@ import streamlit as st
 import plotly.express as px
 
 st.set_page_config(layout="wide")
-
+broken = True
 asset_path = './assets/'
+
 
 def get_html_soup(url):
     """Uses Beautiful Soup to extract html from a url. Returns a soup object """
@@ -78,148 +79,152 @@ def plot_editing(fig, title, x_title, y_title, height=650, width=700):
     return fig
 
 
-# @st.cache
-def update_app():
-    top_page_soup = get_html_soup('https://www.skysports.com/euro-2020-table')
-    group_soup_a = top_page_soup.find_all('div', {"class": 'standing-table standing-table--full block'})[0]
-    group_soup_b = top_page_soup.find_all('div', {"class": 'standing-table standing-table--full block'})[1]
-    group_soup_c = top_page_soup.find_all('div', {"class": 'standing-table standing-table--full block'})[2]
-    group_soup_d = top_page_soup.find_all('div', {"class": 'standing-table standing-table--full block'})[3]
-    group_soup_e = top_page_soup.find_all('div', {"class": 'standing-table standing-table--full block'})[4]
-    group_soup_f = top_page_soup.find_all('div', {"class": 'standing-table standing-table--full block'})[5]
 
-    groups = [(group_soup_a, 'A'),
-              (group_soup_b, 'B'),
-              (group_soup_c, 'C'),
-              (group_soup_d, 'D'),
-              (group_soup_e, 'E'),
-              (group_soup_f, 'F')]
-
-    tables = []
-    for group in groups:
-        tables.append(get_table(group))
-
-    df_team = pd.concat(tables)
-    df_team = pd.concat([df_team[df_team.columns[-1]], df_team[df_team.columns[0:2]], df_team[df_team.columns[2:-1]].astype(int)], axis=1)
-    return df_team
-df_team = update_app()
-
-datasine_dic = {'Austria': ('Jergan'),
-                'Belgium': ('Dixon'),
-                'Croatia': ('Sofia'),
-                'Czech Republic': ('Tim'),
-                'Denmark': ('Costas'),
-                'England': ('Sam'),
-                'Finland': ('Daniel', 'Dixon'),
-                'France': ('Sam'),
-                'Germany': ('Margarita'),
-                'Hungary': ('Stefan'),
-                'Italy': ('Aseem', 'Ben'),
-                'Netherlands': ('Igor', 'Vitali'),
-                'North Macedonia': ('Margarita', 'Tim'),
-                'Poland': ('Ismael'),
-                'Portugal': ('Igor'),
-                'Russia': ('Alfie', 'Franka'),
-                'Scotland': ('Sofia', 'Stefan'),
-                'Slovakia': ('Jergan'),
-                'Spain': ('Costas', 'Vitali'),
-                'Sweden': ('Franka'),
-                'Switzerland': ('Aseem', 'Chris'),
-                'Turkey': ('Alfie'),
-                'Ukraine': ('Daniel', 'Ismael'),
-                'Wales': ('Ben', 'Chris')}
-
-df_staff = df_team.copy()
-df_staff.country = df_staff.country.apply(lambda x: datasine_dic[x])
-df_staff = df_staff.explode('country')
-df_staff.rename(columns={'country':'datasiner'},inplace=True)
-
-st.sidebar.image(asset_path+'euros.png', width=100)
-
-def teams(col_1, col_2):
-    if col_1 == col_2:
-        return col_1
-    else:
-        return str(col_1)+','+str(col_2)
-
-
-df_allocation = pd.DataFrame(datasine_dic).T
-df_allocation['team'] = df_allocation.apply(lambda x: teams(x[0], x[1]), axis=1)
-df_allocation = df_allocation.drop(columns=[0, 1])
-
-st.sidebar.subheader('Team Allocation')
-st.sidebar.dataframe(df_allocation)
-
-st.sidebar.subheader('Data Source')
-st.sidebar.write('https://www.skysports.com/')
-st.sidebar.subheader('Last update')
-st.sidebar.write(pd.datetime.now())
-
-
-c1, c2 = st.beta_columns((1.5, 3))
-
-
-
-
-
-c1.header('Most Recent Results')
-df_recent_results = recent_results()
-c1.dataframe(df_recent_results)
-
-df_recent_results_staff = df_recent_results.copy()
-
-def team_replace(x):
-    try:
-        return datasine_dic[x]
-    except:
-        return
-
-df_recent_results_staff[0] = df_recent_results_staff[0].apply(team_replace)
-df_recent_results_staff[3] = df_recent_results_staff[3].apply(team_replace)
-
-c1.header('Most Recent Results (Staff)')
-c1.dataframe(df_recent_results_staff)
-
-
-
-
-c2.header('Analysis')
-analysis_view = c2.selectbox("Choose team or staff view",
-                                       ['Team','Staff'])
-option = c2.selectbox('Choose analysis..',('Points','Results'))
-
-option_dic = {'Points':'points'}
-if analysis_view == 'Team':
-    df = df_team
-
-    if option == 'Results':
-        fig = px.bar(df, y="country", x=["won", "drawn", "lost"], color_discrete_map={
-            'won': 'green',
-            'drawn': 'grey',
-            'lost': 'red'})
-        fig.update_xaxes(range=[0, 6])
-
-        c2.plotly_chart(plot_editing(fig, title=option, x_title=option, y_title='Team'))
-
-    else:
-        fig = px.bar(df, y='country', x=option_dic[option], color='group', orientation='h', height=900, width=700)
-        fig.update_xaxes(range=[0, 9])
-        c2.plotly_chart(plot_editing(fig, title=option, x_title=option, y_title='Team'))
-
+if broken:
+    st.header("This app was brought you by Scotland")
 else:
-    df = df_staff
-    if option == 'Results':
-        fig = px.bar(df, y="datasiner", x=["won", "drawn", "lost"], color_discrete_map={
-            'won': 'green',
-            'drawn': 'grey',
-            'lost': 'red'})
-        fig.update_xaxes(range=[0, 6])
-        c2.plotly_chart(plot_editing(fig, title=option, x_title=option, y_title='Datasiner'))
+    # @st.cache
+    def update_app():
+        top_page_soup = get_html_soup('https://www.skysports.com/euro-2020-table')
+        group_soup_a = top_page_soup.find_all('div', {"class": 'standing-table standing-table--full block'})[0]
+        group_soup_b = top_page_soup.find_all('div', {"class": 'standing-table standing-table--full block'})[1]
+        group_soup_c = top_page_soup.find_all('div', {"class": 'standing-table standing-table--full block'})[2]
+        group_soup_d = top_page_soup.find_all('div', {"class": 'standing-table standing-table--full block'})[3]
+        group_soup_e = top_page_soup.find_all('div', {"class": 'standing-table standing-table--full block'})[4]
+        group_soup_f = top_page_soup.find_all('div', {"class": 'standing-table standing-table--full block'})[5]
+
+        groups = [(group_soup_a, 'A'),
+                  (group_soup_b, 'B'),
+                  (group_soup_c, 'C'),
+                  (group_soup_d, 'D'),
+                  (group_soup_e, 'E'),
+                  (group_soup_f, 'F')]
+
+        tables = []
+        for group in groups:
+            tables.append(get_table(group))
+
+        df_team = pd.concat(tables)
+        df_team = pd.concat([df_team[df_team.columns[-1]], df_team[df_team.columns[0:2]], df_team[df_team.columns[2:-1]].astype(int)], axis=1)
+        return df_team
+    df_team = update_app()
+
+    datasine_dic = {'Austria': ('Jergan'),
+                    'Belgium': ('Dixon'),
+                    'Croatia': ('Sofia'),
+                    'Czech Republic': ('Tim'),
+                    'Denmark': ('Costas'),
+                    'England': ('Sam'),
+                    'Finland': ('Daniel', 'Dixon'),
+                    'France': ('Sam'),
+                    'Germany': ('Margarita'),
+                    'Hungary': ('Stefan'),
+                    'Italy': ('Aseem', 'Ben'),
+                    'Netherlands': ('Igor', 'Vitali'),
+                    'North Macedonia': ('Margarita', 'Tim'),
+                    'Poland': ('Ismael'),
+                    'Portugal': ('Igor'),
+                    'Russia': ('Alfie', 'Franka'),
+                    'Scotland': ('Sofia', 'Stefan'),
+                    'Slovakia': ('Jergan'),
+                    'Spain': ('Costas', 'Vitali'),
+                    'Sweden': ('Franka'),
+                    'Switzerland': ('Aseem', 'Chris'),
+                    'Turkey': ('Alfie'),
+                    'Ukraine': ('Daniel', 'Ismael'),
+                    'Wales': ('Ben', 'Chris')}
+
+    df_staff = df_team.copy()
+    df_staff.country = df_staff.country.apply(lambda x: datasine_dic[x])
+    df_staff = df_staff.explode('country')
+    df_staff.rename(columns={'country':'datasiner'},inplace=True)
+
+    st.sidebar.image(asset_path+'euros.png', width=100)
+
+    def teams(col_1, col_2):
+        if col_1 == col_2:
+            return col_1
+        else:
+            return str(col_1)+','+str(col_2)
+
+
+    df_allocation = pd.DataFrame(datasine_dic).T
+    df_allocation['team'] = df_allocation.apply(lambda x: teams(x[0], x[1]), axis=1)
+    df_allocation = df_allocation.drop(columns=[0, 1])
+
+    st.sidebar.subheader('Team Allocation')
+    st.sidebar.dataframe(df_allocation)
+
+    st.sidebar.subheader('Data Source')
+    st.sidebar.write('https://www.skysports.com/')
+    st.sidebar.subheader('Last update')
+    st.sidebar.write(pd.datetime.now())
+
+
+    c1, c2 = st.beta_columns((1.5, 3))
+
+
+
+
+
+    c1.header('Most Recent Results')
+    df_recent_results = recent_results()
+    c1.dataframe(df_recent_results)
+
+    df_recent_results_staff = df_recent_results.copy()
+
+    def team_replace(x):
+        try:
+            return datasine_dic[x]
+        except:
+            return
+
+    df_recent_results_staff[0] = df_recent_results_staff[0].apply(team_replace)
+    df_recent_results_staff[3] = df_recent_results_staff[3].apply(team_replace)
+
+    c1.header('Most Recent Results (Staff)')
+    c1.dataframe(df_recent_results_staff)
+
+
+
+
+    c2.header('Analysis')
+    analysis_view = c2.selectbox("Choose team or staff view",
+                                           ['Team','Staff'])
+    option = c2.selectbox('Choose analysis..',('Points','Results'))
+
+    option_dic = {'Points':'points'}
+    if analysis_view == 'Team':
+        df = df_team
+
+        if option == 'Results':
+            fig = px.bar(df, y="country", x=["won", "drawn", "lost"], color_discrete_map={
+                'won': 'green',
+                'drawn': 'grey',
+                'lost': 'red'})
+            fig.update_xaxes(range=[0, 6])
+
+            c2.plotly_chart(plot_editing(fig, title=option, x_title=option, y_title='Team'))
+
+        else:
+            fig = px.bar(df, y='country', x=option_dic[option], color='group', orientation='h', height=900, width=700)
+            fig.update_xaxes(range=[0, 9])
+            c2.plotly_chart(plot_editing(fig, title=option, x_title=option, y_title='Team'))
+
     else:
-        fig = px.bar(df, y='datasiner', x=option_dic[option], orientation='h', height=900, width=700)
-        fig.update_xaxes(range=[0, 18])
-        fig.update_layout(yaxis={'categoryorder': 'total ascending'})
-        c2.plotly_chart(plot_editing(fig,title=option, x_title=option, y_title='Datasiner'))
+        df = df_staff
+        if option == 'Results':
+            fig = px.bar(df, y="datasiner", x=["won", "drawn", "lost"], color_discrete_map={
+                'won': 'green',
+                'drawn': 'grey',
+                'lost': 'red'})
+            fig.update_xaxes(range=[0, 6])
+            c2.plotly_chart(plot_editing(fig, title=option, x_title=option, y_title='Datasiner'))
+        else:
+            fig = px.bar(df, y='datasiner', x=option_dic[option], orientation='h', height=900, width=700)
+            fig.update_xaxes(range=[0, 18])
+            fig.update_layout(yaxis={'categoryorder': 'total ascending'})
+            c2.plotly_chart(plot_editing(fig,title=option, x_title=option, y_title='Datasiner'))
 
 
 
